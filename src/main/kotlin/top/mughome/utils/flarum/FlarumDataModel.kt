@@ -50,7 +50,7 @@ class FlarumDataModel {
         val id: Int,
         val username: String,
         val displayName: String,
-        val avatarUrl: String,
+        val avatarUrl: String? = "",
         val bgUrl: String = "",
         val description: String = "",
         val joinTime: String,

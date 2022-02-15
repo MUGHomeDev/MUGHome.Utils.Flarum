@@ -74,7 +74,7 @@ object FlarumParsers {
                     val user = FlarumDataModel.UserInfo(
                         id = id,
                         username = attributes.getString("username"),
-                        avatarUrl = attributes.getString("avatarUrl"),
+                        avatarUrl = attributes["avatarUrl"].toString(),
                         displayName = attributes.getString("displayName"),
                         joinTimeStamp = joinTimeStamp,
                         joinTime = joinTime

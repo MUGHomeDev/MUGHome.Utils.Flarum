@@ -14,6 +14,6 @@
 
 ```kotlin
     dependencies {
-         implementation("top.mughome.utils:flarum:0.0.2")
+         implementation("top.mughome.utils:flarum:0.0.3.2")
     }
 ```

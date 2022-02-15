@@ -11,6 +11,7 @@ plugins {
 }
 
 group = "top.mughome.utils"
+version = "0.0.3.2"
 
 repositories {
     maven("https://mvn.mughome.top/repository/maven-public/")
@@ -52,7 +53,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "top.mughome.utils"
             artifactId = "flarum"
-            version = "0.0.2"
+            version = "0.0.3.2"
 
             from(components["java"])
 

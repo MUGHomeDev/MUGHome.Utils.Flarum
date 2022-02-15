@@ -148,7 +148,11 @@ class FlarumGetter(private val sessionC: String = "") {
         NullPointerException::class
     )
     suspend fun getDiscussions(): JSONObject {
-        url = URL("${Flarum.baseUrl}api/discussions?include=user,tags&sort&page[offset]=0")
+        url = if (GlobalTempData.nextDiscussionLink == "") {
+            URL("${Flarum.baseUrl}api/discussions?include=user,tags&sort&page[offset]=0")
+        } else {
+            URL(GlobalTempData.nextDiscussionLink)
+        }
         return get()
     }
 
