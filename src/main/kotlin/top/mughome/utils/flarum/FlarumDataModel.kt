@@ -39,23 +39,4 @@ class FlarumDataModel {
         var postContentHtml: String = "",
         val postUserId: Int
     )
-
-    /**
-     * FlarumUser数据类型
-     * @author Yang
-     * @version 0.0.1-SNAPSHOT
-     * @since 0.0.1-SNAPSHOT
-     */
-    data class UserInfo(
-        val id: Int,
-        val username: String,
-        val displayName: String,
-        val avatarUrl: String? = "",
-        val bgUrl: String = "",
-        val description: String = "",
-        val joinTime: String,
-        val joinTimeStamp: Long,
-        val sessionC: String = "",
-        val token: String = ""
-    )
 }
