@@ -6,7 +6,7 @@ package top.mughome.utils.flarum.models
  * @version 0.0.4
  * @since 0.0.4
  */
-interface FlarumCookies {
+interface Cookies {
     var sessionCookie: String
     var rememberCookie: String
     var csrfToken: String

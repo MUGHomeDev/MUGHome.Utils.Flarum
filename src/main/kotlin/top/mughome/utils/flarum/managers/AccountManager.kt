@@ -11,7 +11,9 @@ import okhttp3.Response
 import org.json.JSONException
 import org.json.JSONObject
 import top.mughome.utils.flarum.Flarum
-import top.mughome.utils.flarum.models.FlarumCookies
+import top.mughome.utils.flarum.FlarumGetter
+import top.mughome.utils.flarum.FlarumParsers
+import top.mughome.utils.flarum.models.Cookies
 import top.mughome.utils.flarum.models.User
 import java.io.IOException
 import java.net.MalformedURLException
@@ -23,7 +25,7 @@ import java.net.URL
  * @version 0.0.4
  * @since 0.0.1-SNAPSHOT
  */
-class AccountManager : User, FlarumCookies {
+class AccountManager : User, Cookies {
     /**
      * 返回值：错误点
      */
@@ -48,6 +50,7 @@ class AccountManager : User, FlarumCookies {
     override var joinTime: String = ""
     override var joinTimeStamp: Long = 0L
     override var token: String = ""
+    override var sessionC: String = ""
 
     override var sessionCookie: String = ""
     override var csrfToken: String = ""
@@ -121,18 +124,17 @@ class AccountManager : User, FlarumCookies {
         }
 
         val inputData = JSONObject(response.body!!.string())
-        val uid = inputData.getInt("userId")
-        val token = inputData.getString("token")
+        id = inputData.getInt("userId")
+        this.token = inputData.getString("token")
         if (!remember) {
-            val session = response.headers["set-cookie"].toString()
-            id = uid
-            this.token = token
-            sessionCookie = session.substring(0, session.indexOf(";"))
+            getSessionCookie(response)
         } else {
             getRememberCookie(response)
-            this.token = token
-            id = uid
         }
+
+        val userJson = FlarumGetter().getUser(id)
+        FlarumParsers.parseUser(userJson, this)
+
         response.close()
         return true
     }
@@ -211,6 +213,9 @@ class AccountManager : User, FlarumCookies {
 
         getRememberCookie(response)
         id = uid
+
+        val userJson = FlarumGetter().getUser(id)
+        FlarumParsers.parseUser(userJson, this)
         response.close()
         return true
     }
@@ -266,6 +271,7 @@ class AccountManager : User, FlarumCookies {
      */
     @Throws(MalformedURLException::class, IOException::class, IllegalStateException::class)
     suspend fun logout(token: String): Boolean {
+        clear()
         getCookieAndCSRFToken()
         val url = URL(Flarum.baseUrl + "logout?token=$token")
         val response = get(url)
@@ -276,7 +282,11 @@ class AccountManager : User, FlarumCookies {
         }
         if (response.code != 200) return false
 
-        getSessionCookie(response)
+        sessionC = ""
+        sessionCookie = ""
+        rememberCookie = ""
+        this.token = ""
+
         response.close()
         return true
     }
@@ -358,6 +368,7 @@ class AccountManager : User, FlarumCookies {
     private fun getSessionCookie(r: Response) {
         val s = r.headers["set-cookie"].toString()
         sessionCookie = s.substring(0, s.indexOf(";"))
+        sessionC = s.substring(0, s.indexOf(";"))
     }
 
     private fun getRememberCookie(r: Response) {
@@ -368,5 +379,9 @@ class AccountManager : User, FlarumCookies {
                 "flarum_remember" -> rememberCookie = it.substring(0, it.indexOf(";"))
             }
         }
+    }
+
+    override fun toString(): String {
+        return "[AccountManager: User: (id: $id, username: $username, displayName: $displayName, avatarUrl: $avatarUrl, bgUrl: $bgUrl, description: $description, joinTime: $joinTime, joinTimeStamp: $joinTimeStamp, token: $token, sessionC: $sessionC), Cookies: (sessionCookie: $sessionCookie, rememberCookie: $rememberCookie, csrfToken: $csrfToken)]"
     }
 }

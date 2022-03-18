@@ -24,7 +24,7 @@ object DateConverter {
      */
     @Throws(NullPointerException::class, IllegalArgumentException::class, ParseException::class)
     fun dateToStamp(time: String): Long {
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.CHINA)
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'+00:00'", Locale.CHINA)
         val stamp: Long = if (time != "") {
             sdf.parse(time)!!.time / 1000
         } else {

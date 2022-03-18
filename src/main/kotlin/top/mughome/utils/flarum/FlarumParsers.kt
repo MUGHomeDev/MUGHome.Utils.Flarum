@@ -1,6 +1,7 @@
 package top.mughome.utils.flarum
 
 import com.alibaba.fastjson.JSONObject
+import top.mughome.utils.flarum.models.User
 import java.text.ParseException
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
@@ -8,7 +9,7 @@ import java.util.regex.PatternSyntaxException
 /**
  * Flarum解析静态类
  * @author Yang
- * @version 0.0.1-SNAPSHOT
+ * @version 0.0.4
  * @since 0.0.1-SNAPSHOT
  */
 object FlarumParsers {
@@ -21,7 +22,7 @@ object FlarumParsers {
      * @throws NullPointerException 由DateConverter产生
      * @throws IllegalArgumentException 由DateConverter产生
      * @throws ParseException 由DateConverter产生
-     * @version 0.0.1-SNAPSHOT
+     * @version 0.0.4
      * @since 0.0.1-SNAPSHOT
      */
     @Throws(NullPointerException::class, IllegalArgumentException::class, ParseException::class)
@@ -71,14 +72,18 @@ object FlarumParsers {
                     )
                     val joinTime = DateConverter.stampToDate(joinTimeStamp)
 
-                    val user = FlarumDataModel.UserInfo(
-                        id = id,
-                        username = attributes.getString("username"),
-                        avatarUrl = attributes["avatarUrl"].toString(),
-                        displayName = attributes.getString("displayName"),
-                        joinTimeStamp = joinTimeStamp,
-                        joinTime = joinTime
-                    )
+                    val user = object : User {
+                        override var id: Int = id
+                        override var username: String = attributes.getString("username")
+                        override var displayName: String = attributes.getString("displayName")
+                        override var avatarUrl: String = attributes["avatarUrl"].toString()
+                        override var bgUrl: String = ""
+                        override var description: String = ""
+                        override var joinTime: String = joinTime
+                        override var joinTimeStamp: Long = joinTimeStamp
+                        override var token: String = ""
+                        override var sessionC: String = ""
+                    }
                     GlobalTempData.usersInfo[id] = user
                 }
             }
@@ -94,7 +99,7 @@ object FlarumParsers {
      * @throws NullPointerException 由DateConverter产生
      * @throws IllegalArgumentException 由DateConverter产生
      * @throws ParseException 由DateConverter产生
-     * @version 0.0.1-SNAPSHOT
+     * @version 0.0.4
      * @since 0.0.1-SNAPSHOT
      */
     @Throws(NullPointerException::class, IllegalArgumentException::class, ParseException::class)
@@ -145,14 +150,18 @@ object FlarumParsers {
                     it.getJSONObject("attributes").getString("joinTime")
                 )
                 val id = it.getString("id").toInt()
-                val user = FlarumDataModel.UserInfo(
-                    id = id,
-                    username = it.getJSONObject("attributes").getString("username"),
-                    avatarUrl = it.getJSONObject("attributes").getString("avatarUrl"),
-                    displayName = it.getJSONObject("attributes").getString("displayName"),
-                    joinTimeStamp = joinTimeStamp,
-                    joinTime = DateConverter.stampToDate(joinTimeStamp)
-                )
+                val user = object : User {
+                    override var id: Int = id
+                    override var username: String = it.getJSONObject("attributes").getString("username")
+                    override var displayName: String = it.getJSONObject("attributes").getString("displayName")
+                    override var avatarUrl: String = it.getJSONObject("attributes").getString("avatarUrl")
+                    override var bgUrl: String = ""
+                    override var description: String = ""
+                    override var joinTime: String = DateConverter.stampToDate(joinTimeStamp)
+                    override var joinTimeStamp: Long = joinTimeStamp
+                    override var token: String = ""
+                    override var sessionC: String = ""
+                }
                 GlobalTempData.usersInfo[id] = user
             }
         }
@@ -163,16 +172,14 @@ object FlarumParsers {
      * 解析带有User的JSONObject
      * @author Yang
      * @param outJson 带有DiscussionDetail的JSONObject
-     * @param sessionC 登录时返回的Session Cookie
-     * @param token 登录时返回的token
-     * @return 该方法返回值为Boolean，成功为true，失败自行捕捉Exception
+     * @param user 已有的User实例
      * @throws NullPointerException 由DateConverter产生
      * @throws IllegalArgumentException 由DateConverter产生
      * @throws ParseException 由DateConverter产生
-     * @version 0.0.1-SNAPSHOT
+     * @version 0.0.4
      * @since 0.0.1-SNAPSHOT
      */
-    fun parseUser(outJson: JSONObject, sessionC: String = "", token: String = ""): Boolean {
+    fun parseUser(outJson: JSONObject, user: User) {
         val json = outJson.getJSONObject("data")
         val id = json.getString("id").toInt()
         val attributes = json.getJSONObject("attributes")
@@ -180,20 +187,16 @@ object FlarumParsers {
             DateConverter.dateToStamp(json.getJSONObject("attributes").getString("joinTime"))
         val joinTime = DateConverter.stampToDate(joinTimeStamp)
 
-        val user = FlarumDataModel.UserInfo(
-            id = id,
-            username = attributes.getString("username"),
-            avatarUrl = attributes.getString("avatarUrl"),
-            displayName = attributes.getString("displayName"),
-            joinTimeStamp = joinTimeStamp,
-            joinTime = joinTime,
-            bgUrl = "${Flarum.coverPrefix}${attributes.getString("cover")}",
-            description = attributes.getString("bio"),
-            sessionC = sessionC,
-            token = token
-        )
-        GlobalTempData.userInfo = user
-        return true
+        user.let {
+            it.id = id
+            it.username = attributes.getString("username")
+            it.displayName = attributes.getString("displayName")
+            it.avatarUrl = attributes.getString("avatarUrl")
+            it.bgUrl = "${Flarum.coverPrefix}${attributes.getString("cover")}"
+            it.description = attributes.getString("bio")
+            it.joinTime = joinTime
+            it.joinTimeStamp = joinTimeStamp
+        }
     }
 
     /**

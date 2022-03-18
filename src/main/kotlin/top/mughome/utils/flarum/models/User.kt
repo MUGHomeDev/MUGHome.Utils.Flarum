@@ -16,4 +16,5 @@ interface User {
     var joinTime: String
     var joinTimeStamp: Long
     var token: String
+    var sessionC: String
 }
