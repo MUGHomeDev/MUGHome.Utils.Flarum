@@ -6,8 +6,7 @@ package top.mughome.utils.flarum.models
  * @version 0.0.4
  * @since 0.0.4
  */
-interface User {
-    var id: Int
+interface User : BasicModel {
     var username: String
     var displayName: String
     var avatarUrl: String

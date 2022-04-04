@@ -15,15 +15,17 @@ version = "0.0.4"
 
 repositories {
     maven("https://mvn.mughome.top/repository/maven-public/")
+    mavenCentral()
 }
 
 dependencies {
     testImplementation(kotlin("test"))
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.32")
-    implementation("org.json:json:20211205")
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.6.10")
+    implementation("org.json:json:20220320")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
-    implementation("com.alibaba:fastjson:1.2.79")
-    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.4")
+    implementation("com.alibaba:fastjson:1.2.80")
+    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.6")
+    implementation("org.apache.directory.studio:org.apache.commons.lang:2.6")
 }
 
 tasks.test {

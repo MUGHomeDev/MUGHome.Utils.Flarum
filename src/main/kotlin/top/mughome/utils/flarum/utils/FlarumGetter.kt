@@ -1,4 +1,4 @@
-package top.mughome.utils.flarum
+package top.mughome.utils.flarum.utils
 
 import com.alibaba.fastjson.JSONObject
 import kotlinx.coroutines.Dispatchers
@@ -6,6 +6,8 @@ import kotlinx.coroutines.withContext
 import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import top.mughome.utils.flarum.Flarum
+import top.mughome.utils.flarum.GlobalTempData
 import java.io.IOException
 import java.net.MalformedURLException
 import java.net.URL

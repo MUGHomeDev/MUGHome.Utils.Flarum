@@ -11,10 +11,11 @@ import okhttp3.Response
 import org.json.JSONException
 import org.json.JSONObject
 import top.mughome.utils.flarum.Flarum
-import top.mughome.utils.flarum.FlarumGetter
-import top.mughome.utils.flarum.FlarumParsers
 import top.mughome.utils.flarum.models.Cookies
+import top.mughome.utils.flarum.models.ModelType
 import top.mughome.utils.flarum.models.User
+import top.mughome.utils.flarum.utils.FlarumGetter
+import top.mughome.utils.flarum.utils.FlarumParsers
 import java.io.IOException
 import java.net.MalformedURLException
 import java.net.URL
@@ -41,6 +42,7 @@ class AccountManager : User, Cookies {
      */
     private val client = OkHttpClient()
 
+    override val type = ModelType.USER
     override var id: Int = 0
     override var username: String = ""
     override var displayName: String = ""
@@ -131,6 +133,8 @@ class AccountManager : User, Cookies {
         } else {
             getRememberCookie(response)
         }
+
+        csrfToken = response.headers["x-csrf-token"].toString()
 
         val userJson = FlarumGetter().getUser(id)
         FlarumParsers.parseUser(userJson, this)
@@ -382,6 +386,6 @@ class AccountManager : User, Cookies {
     }
 
     override fun toString(): String {
-        return "[AccountManager: User: (id: $id, username: $username, displayName: $displayName, avatarUrl: $avatarUrl, bgUrl: $bgUrl, description: $description, joinTime: $joinTime, joinTimeStamp: $joinTimeStamp, token: $token, sessionC: $sessionC), Cookies: (sessionCookie: $sessionCookie, rememberCookie: $rememberCookie, csrfToken: $csrfToken)]"
+        return "[AccountManager: BasicModel: (type: $type, id: $id), User: (username: $username, displayName: $displayName, avatarUrl: $avatarUrl, bgUrl: $bgUrl, description: $description, joinTime: $joinTime, joinTimeStamp: $joinTimeStamp, token: $token, sessionC: $sessionC), Cookies: (sessionCookie: $sessionCookie, rememberCookie: $rememberCookie, csrfToken: $csrfToken)]"
     }
 }

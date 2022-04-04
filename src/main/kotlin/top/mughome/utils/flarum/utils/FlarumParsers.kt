@@ -1,6 +1,12 @@
-package top.mughome.utils.flarum
+package top.mughome.utils.flarum.utils
 
 import com.alibaba.fastjson.JSONObject
+import top.mughome.utils.flarum.DateConverter
+import top.mughome.utils.flarum.Flarum
+import top.mughome.utils.flarum.FlarumDataModel
+import top.mughome.utils.flarum.GlobalTempData
+import top.mughome.utils.flarum.managers.DiscussionManager
+import top.mughome.utils.flarum.models.ModelType
 import top.mughome.utils.flarum.models.User
 import java.text.ParseException
 import java.util.regex.Pattern
@@ -12,7 +18,7 @@ import java.util.regex.PatternSyntaxException
  * @version 0.0.4
  * @since 0.0.1-SNAPSHOT
  */
-object FlarumParsers {
+internal object FlarumParsers {
 
     /**
      * 解析带有User和Tag作为Included的Discussion JSONObject
@@ -74,6 +80,7 @@ object FlarumParsers {
 
                     val user = object : User {
                         override var id: Int = id
+                        override val type: ModelType = ModelType.USER
                         override var username: String = attributes.getString("username")
                         override var displayName: String = attributes.getString("displayName")
                         override var avatarUrl: String = attributes["avatarUrl"].toString()
@@ -83,6 +90,10 @@ object FlarumParsers {
                         override var joinTimeStamp: Long = joinTimeStamp
                         override var token: String = ""
                         override var sessionC: String = ""
+
+                        override fun toString(): String {
+                            return "[User: (username: $username, displayName: $displayName, avatarUrl: $avatarUrl, bgUrl: $bgUrl, description: $description, joinTime: $joinTime, joinTimeStamp: $joinTimeStamp, token: $token, sessionC: $sessionC)]"
+                        }
                     }
                     GlobalTempData.usersInfo[id] = user
                 }
@@ -152,6 +163,7 @@ object FlarumParsers {
                 val id = it.getString("id").toInt()
                 val user = object : User {
                     override var id: Int = id
+                    override val type: ModelType = ModelType.USER
                     override var username: String = it.getJSONObject("attributes").getString("username")
                     override var displayName: String = it.getJSONObject("attributes").getString("displayName")
                     override var avatarUrl: String = it.getJSONObject("attributes").getString("avatarUrl")
@@ -161,6 +173,10 @@ object FlarumParsers {
                     override var joinTimeStamp: Long = joinTimeStamp
                     override var token: String = ""
                     override var sessionC: String = ""
+
+                    override fun toString(): String {
+                        return "[User: (username: $username, displayName: $displayName, avatarUrl: $avatarUrl, bgUrl: $bgUrl, description: $description, joinTime: $joinTime, joinTimeStamp: $joinTimeStamp, token: $token, sessionC: $sessionC)]"
+                    }
                 }
                 GlobalTempData.usersInfo[id] = user
             }
@@ -196,6 +212,64 @@ object FlarumParsers {
             it.description = attributes.getString("bio")
             it.joinTime = joinTime
             it.joinTimeStamp = joinTimeStamp
+        }
+    }
+
+    fun parseDiscussion(outJson: JSONObject, discussionManager: DiscussionManager) {
+        val json = outJson.getJSONObject("data")
+        val id = json.getString("id").toInt()
+        val attributes = json.getJSONObject("attributes")
+        val createdAtStamp =
+            DateConverter.dateToStamp(json.getJSONObject("attributes").getString("createdAt"))
+        val createdAt = DateConverter.stampToDate(createdAtStamp)
+        val included = outJson.getJSONArray("included")
+
+        discussionManager.let { manager ->
+            manager.id = id
+            manager.title = attributes.getString("title")
+            manager.discussionCreateDate = createdAt
+            manager.discussionLastPostedDate = createdAt
+            manager.discussionCreateStamp = createdAtStamp
+            manager.discussionLastPostedStamp = createdAtStamp
+            manager.commentCount = attributes.getInteger("commentCount")
+            manager.viewCount = attributes.getInteger("views")
+
+            included.forEach {
+                it as JSONObject
+                when (it.getString("type")) {
+                    "posts" -> {
+                        //do Nothing
+                    }
+
+                    "users" -> {
+                        val attributesJson = it.getJSONObject("attributes")
+
+                        manager.included.add(object : User {
+                            override var bgUrl = ""
+                            override var token = ""
+                            override var sessionC = ""
+                            override var description = ""
+
+                            override var type = ModelType.USER
+                            override var id = it.getInteger("id")
+
+                            override var username = attributesJson.getString("username")
+                            override var displayName = attributesJson.getString("displayName")
+                            override var avatarUrl = attributesJson.getString("avatarUrl")
+                            override var joinTimeStamp = DateConverter.dateToStamp(attributesJson.getString("joinTime"))
+                            override var joinTime = DateConverter.stampToDate(joinTimeStamp)
+
+                            override fun toString(): String {
+                                return "[User: (username: $username, displayName: $displayName, avatarUrl: $avatarUrl, bgUrl: $bgUrl, description: $description, joinTime: $joinTime, joinTimeStamp: $joinTimeStamp, token: $token, sessionC: $sessionC)]"
+                            }
+                        })
+                    }
+
+                    "tags" -> {
+                        //do Nothing
+                    }
+                }
+            }
         }
     }
 
