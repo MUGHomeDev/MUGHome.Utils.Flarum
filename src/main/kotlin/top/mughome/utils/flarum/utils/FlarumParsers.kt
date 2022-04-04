@@ -15,11 +15,10 @@ import java.util.regex.PatternSyntaxException
 /**
  * Flarum解析静态类
  * @author Yang
- * @version 0.0.4
+ * @version 0.0.5
  * @since 0.0.1-SNAPSHOT
  */
 internal object FlarumParsers {
-
     /**
      * 解析带有User和Tag作为Included的Discussion JSONObject
      * @author Yang
@@ -32,6 +31,7 @@ internal object FlarumParsers {
      * @since 0.0.1-SNAPSHOT
      */
     @Throws(NullPointerException::class, IllegalArgumentException::class, ParseException::class)
+    @Deprecated("请使用新的方法，该方法已经过时")
     fun parseDiscussionWithUT(json: JSONObject): Boolean {
         val linksJson = json.getJSONObject("links")
         val dataJson = json.getJSONArray("data")
@@ -114,6 +114,7 @@ internal object FlarumParsers {
      * @since 0.0.1-SNAPSHOT
      */
     @Throws(NullPointerException::class, IllegalArgumentException::class, ParseException::class)
+    @Deprecated("请使用新的方法，该方法已经过时")
     fun parseDiscussionDetail(json: JSONObject, discussionId: Int): Boolean {
         val dataJson = json.getJSONArray("data")
         val includedJson = json.getJSONArray("included")
@@ -192,9 +193,10 @@ internal object FlarumParsers {
      * @throws NullPointerException 由DateConverter产生
      * @throws IllegalArgumentException 由DateConverter产生
      * @throws ParseException 由DateConverter产生
-     * @version 0.0.4
+     * @version 0.0.5
      * @since 0.0.1-SNAPSHOT
      */
+    @Throws(NullPointerException::class, IllegalArgumentException::class, ParseException::class)
     fun parseUser(outJson: JSONObject, user: User) {
         val json = outJson.getJSONObject("data")
         val id = json.getString("id").toInt()
@@ -215,6 +217,18 @@ internal object FlarumParsers {
         }
     }
 
+    /**
+     * 解析带有Discussion的JSONObject
+     * @author Yang
+     * @param outJson 带有DiscussionDetail的JSONObject
+     * @param discussionManager 已有的DiscussionManager实例
+     * @throws NullPointerException 由DateConverter产生
+     * @throws IllegalArgumentException 由DateConverter产生
+     * @throws ParseException 由DateConverter产生
+     * @version 0.0.5
+     * @since 0.0.1-SNAPSHOT
+     */
+    @Throws(NullPointerException::class, IllegalArgumentException::class, ParseException::class)
     fun parseDiscussion(outJson: JSONObject, discussionManager: DiscussionManager) {
         val json = outJson.getJSONObject("data")
         val id = json.getString("id").toInt()

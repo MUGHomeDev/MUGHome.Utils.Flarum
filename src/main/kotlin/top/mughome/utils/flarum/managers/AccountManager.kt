@@ -23,7 +23,7 @@ import java.net.URL
 /**
  * Flarum账号相关操作类，使用时需初始化为实例，返回值通过调用实例字段获取
  * @author Yang
- * @version 0.0.4
+ * @version 0.0.5
  * @since 0.0.1-SNAPSHOT
  */
 class AccountManager : User, Cookies {
@@ -42,6 +42,9 @@ class AccountManager : User, Cookies {
      */
     private val client = OkHttpClient()
 
+    /**
+     * 初始化接口字段
+     */
     override val type = ModelType.USER
     override var id: Int = 0
     override var username: String = ""
@@ -58,6 +61,13 @@ class AccountManager : User, Cookies {
     override var csrfToken: String = ""
     override var rememberCookie: String = ""
 
+    /**
+     * 清空数据
+     * @return 返回一个空的实例
+     * @author Yang
+     * @version 0.0.5
+     * @since 0.0.4
+     */
     fun clear(): AccountManager {
         wrongPoints.clear()
         errorMessages.clear()
@@ -78,6 +88,7 @@ class AccountManager : User, Cookies {
 
         return this
     }
+
     /**
      * Flarum账号登录
      * @author Yang

@@ -3,9 +3,10 @@ package top.mughome.utils.flarum
 /**
  * Flarum相关数据类型
  * @author Yang
- * @version 0.0.1-SNAPSHOT
+ * @version 0.0.5
  * @since 0.0.1-SNAPSHOT
  */
+@Deprecated("请使用依赖于BasicModel的新数据类型")
 class FlarumDataModel {
     /**
      * FlarumDiscussion数据类型

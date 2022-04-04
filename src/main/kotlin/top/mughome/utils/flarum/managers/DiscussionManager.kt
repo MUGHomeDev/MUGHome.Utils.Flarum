@@ -7,56 +7,37 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONException
 import org.json.JSONObject
 import top.mughome.utils.flarum.Flarum
 import top.mughome.utils.flarum.models.*
 import top.mughome.utils.flarum.utils.FlarumGetter
 import top.mughome.utils.flarum.utils.FlarumParsers
 import java.io.IOException
-import java.net.InetSocketAddress
-import java.net.Proxy
+import java.net.MalformedURLException
 import java.net.URL
-import java.security.cert.X509Certificate
-import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLSocketFactory
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
 
+/**
+ * Flarum Discussion相关操作类，使用时需初始化为实例，返回值通过调用实例字段获取
+ * @author Yang
+ * @version 0.0.5
+ * @since 0.0.5
+ */
 class DiscussionManager(private val cookie: Cookies, private var csrfToken: String) : Discussion, Included() {
-    private val trustAllCerts = arrayOf<TrustManager>(
-        object : X509TrustManager {
-            override fun checkClientTrusted(chain: Array<X509Certificate?>?, authType: String?) {
-            }
-
-            override fun checkServerTrusted(chain: Array<X509Certificate?>?, authType: String?) {
-            }
-
-            override fun getAcceptedIssuers(): Array<X509Certificate> {
-                return arrayOf()
-            }
-        }
-    )
-
-    private val sslContext: SSLContext = SSLContext.getInstance("SSL")
-    private var sslSocketFactory: SSLSocketFactory
-
-    init {
-        sslContext.init(null, trustAllCerts, java.security.SecureRandom())
-        sslSocketFactory = sslContext.socketFactory
-    }
-
+    /**
+     * 实例内使用字段 FlarumGetter
+     * @see FlarumGetter
+     */
     private val getter = FlarumGetter(cookie.sessionCookie)
-    private val client = OkHttpClient.Builder()
-        .proxy(
-            Proxy(
-                Proxy.Type.HTTP,
-                InetSocketAddress("127.0.0.1", 11451)
-            )
-        )
-        .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
-        .hostnameVerifier { _, _ -> true }
-        .build()
 
+    /**
+     * 实例内使用字段 OkHttpClient
+     */
+    private val client = OkHttpClient()
+
+    /**
+     * 初始化接口字段
+     */
     override val type = ModelType.DISCUSSION
     override var id: Int = 0
 
@@ -71,6 +52,13 @@ class DiscussionManager(private val cookie: Cookies, private var csrfToken: Stri
 
     override var included: MutableList<BasicModel> = mutableListOf()
 
+    /**
+     * 清空数据
+     * @return 返回一个空的实例
+     * @author Yang
+     * @version 0.0.5
+     * @since 0.0.5
+     */
     fun clear(): DiscussionManager {
         id = 0
         title = ""
@@ -84,10 +72,31 @@ class DiscussionManager(private val cookie: Cookies, private var csrfToken: Stri
         return this
     }
 
+    /**
+     * 获取一个Discussion Not Done Yet
+     * @author Yang
+     * @version 0.0.5
+     * @since 0.0.5
+     */
     fun getDiscussion(id: Int) {
         throw NotImplementedError()
     }
 
+    /**
+     * 创建一个新的Discussion
+     * @author Yang
+     * @param title Discussion标题
+     * @param content Discussion内容
+     * @param tags Discussion标签
+     * @return 该方法返回值为Boolean，若成功即为true，失败即为false
+     * @throws MalformedURLException 由URL产生，若产生，检查URL链接是否可用
+     * @throws JSONException 由JSONObject实例的put方法产生，若产生，检查该lib源码
+     * @throws NullPointerException 由response.body!!产生，若产生，检查response.body是否为null
+     * @throws IOException 由response.body!!.string()产生，若产生，检查response.body是否不能转换为字符串
+     * @throws IllegalStateException 由OkHttpClient实例的execute方法产生，若产生，检查该lib源码
+     * @version 0.0.5
+     * @since 0.0.5
+     */
     suspend fun createDiscussion(title: String, content: String, tags: List<String>): Boolean {
         val url = URL(Flarum.baseUrl + "api/discussions")
 

@@ -3,9 +3,9 @@ package top.mughome.utils.flarum
 import top.mughome.utils.flarum.managers.AccountManager
 
 /**
- * Flarum初始化类
+ * Flarum初始化类，使用前请先初始化
  * @author Yang
- * @version 0.0.1-SNAPSHOT
+ * @version 0.0.5
  * @since 0.0.1-SNAPSHOT
  */
 object Flarum {
